@@ -24,6 +24,7 @@ function Box(props: ThreeElements['mesh']) {
 }
 
 export default function App() {
+  console.log('Loaded!')
   return (
     <Canvas>
       <ambientLight />
@@ -31,7 +32,7 @@ export default function App() {
       <Box position={[-5, 0, 3]} />
       <Box position={[5, 0, 0]} />
     </Canvas>
-  );
+  )
 }
 
 /*
