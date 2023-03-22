@@ -1,14 +1,23 @@
 import React, { useRef, useState } from 'react'
-//import logo from './logo.svg';
-import './App.css';
+import './styles.css';
 import * as THREE from 'three'
 import { Canvas, useFrame, ThreeElements } from '@react-three/fiber'
 
-function Box(props: ThreeElements['mesh']) {
-  const ref = useRef<THREE.Mesh>(null!)
-  const [hovered, hover] = useState(false)
-  const [clicked, click] = useState(false)
-  useFrame((state, delta) => (ref.current.rotation.x += delta, ref.current.rotation.y += delta))
+interface boxProps {
+  size: number
+}
+
+function Box(props: ThreeElements['mesh'] | boxProps) {
+  const ref = useRef<THREE.Mesh>(null)
+  const [hovered, hover] = useState(false);
+  const [clicked, click] = useState(false);
+  const size = (props as boxProps).size;
+  useFrame((state, delta) => {
+    if (ref.current) {
+      ref.current.rotation.x += delta, ref.current.rotation.y += delta;
+    }
+  });
+
   return (
     <mesh
       {...props}
@@ -17,45 +26,55 @@ function Box(props: ThreeElements['mesh']) {
       onClick={() => click(!clicked)}
       onPointerOver={() => hover(true)}
       onPointerOut={() => hover(false)}>
-      <boxGeometry args={[2, 2, 2]} />
+      <boxGeometry args={[size, size, size]} />
       <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
     </mesh>
   )
 }
 
 export default function App() {
-  console.log('Loaded!')
   return (
-    <Canvas>
+    <Canvas id='canvas'
+    shadows
+    eventSource={document.getElementById('root')!}
+    eventPrefix="client"
+    camera={{ position: [20, 0.9, 20], fov: 26 }} >
+      <Scene />
       <ambientLight />
       <pointLight position={[10, 10, 10]} />
-      <Box position={[-5, 0, 3]} />
-      <Box position={[5, 0, 0]} />
     </Canvas>
   )
 }
 
-/*
-function App() {
+function Scene() {
+  const maincanvas = document.getElementById('canvas')!;
+  maincanvas.style.position = 'fixed';
+  maincanvas.style.top = '0';
+  maincanvas.style.left = '0';
+  maincanvas.style.zIndex = '-99';
+  const scene = useRef() as React.Ref<THREE.Group>;
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <group ref={scene}>
+      <Box position={[0, 0, 0]} size={1} />
+      <Box position={[5, 1, 0]} size={1.5} />
+      <Box position={[10, -1, 0]} size={1} />
+    </group>
   );
 }
 
-export default App;
-*/
+/* const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+const canvas = document.getElementById('#canvas')!;
+const renderer = new THREE.WebGLRenderer({
+  canvas
+});
+
+renderer.render(scene, camera);
+
+//document.body.appendChild(renderer.domElement);
+//canvas.appendChild(renderer.domElement); 
+
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight); */
